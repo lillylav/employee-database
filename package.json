@@ -1,0 +1,28 @@
+{
+  "name": "employee-database",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lillylav/employee-database.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lillylav/employee-database/issues"
+  },
+  "homepage": "https://github.com/lillylav/employee-database#readme",
+  "devDependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^8.2.1",
+    "jest": "^27.5.1",
+    "mysql2": "^2.3.3"
+  }
+}
