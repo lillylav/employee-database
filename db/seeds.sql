@@ -19,7 +19,7 @@ VALUES
     ('Junior Developer', 70000, 3),
     ('Senior Developer', 90000, 3),
     ('Testing Manager', 110000, 4),
-    ('Tester', 65000, 4);
+    ('Tester', 65000, 4),
     ('Design Manager', 110000, 5),
     ('Designer', 70000, 5),
     ('Marketing Manager', 110000, 6),
