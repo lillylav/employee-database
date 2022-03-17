@@ -19,7 +19,7 @@ router.get('/roles', (req, res) => {
         AS department_name
         FROM roles
         LEFT JOIN departments
-        ON roles.departments_id = departments.id`;
+        ON roles.department_id = departments.id`;
   
     db.query(sql, (err, rows) => {
       if (err) {

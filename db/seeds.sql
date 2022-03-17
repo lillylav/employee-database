@@ -26,20 +26,20 @@ VALUES
     ('Marketing Rep', 65000, 6)
 ;
 
-INSERT INTO employees (first_name, last_name, job_title, manager_id, roles_id)
+INSERT INTO employees (first_name, last_name, manager_id, role_id)
 VALUES
-    ('Mary', 'Vigos', 'HR Manager', NULL, 1),
-    ('Cherry', 'Loveless', 'HR Rep', 1, 1),
-    ('Russel', 'Phillips', 'Frontend Manager', NULL, 3),
-    ('Lilly', 'Leiran', 'Junior Developer', 3, 4),
-    ('Hope', 'Saville', 'Senior Developer', 3, 5),
-    ('Matt', 'Peterson', 'Backend Manager', NULL, 6),
-    ('Aaron', 'Senior', 'Junior Developer', 6, 7),
-    ('Steve', 'Kerkman', 'Senior Developer', 6, 8),
-    ('Travis', 'Grant', 'Testing Manager', NULL, 9),
-    ('Chrissy', 'Meier', 'Tester', 9, 10),
-    ('Kim', 'Hinson', 'Design Manager', NULL, 11),
-    ('Denise', 'Sherer', 'Designer', 11, 12),
-    ('Chelsea', 'Calhoun', 'Marketing Manager', NULL, 13),
-    ('Cortney', 'Fronk', 'Marketing Rep', 13, 14)
+    ('Mary', 'Vigos', NULL, 1),
+    ('Cherry', 'Loveless', 1, 1),
+    ('Russel', 'Phillips', NULL, 3),
+    ('Lilly', 'Leiran', 3, 4),
+    ('Hope', 'Saville', 3, 5),
+    ('Matt', 'Peterson', NULL, 6),
+    ('Aaron', 'Senior', 6, 7),
+    ('Steve', 'Kerkman', 6, 8),
+    ('Travis', 'Grant', NULL, 9),
+    ('Chrissy', 'Meier', 9, 10),
+    ('Kim', 'Hinson', NULL, 11),
+    ('Denise', 'Sherer', 11, 12),
+    ('Chelsea', 'Calhoun', NULL, 13),
+    ('Cortney', 'Fronk', 13, 14)
 ;
