@@ -57,15 +57,15 @@ router.delete('/roles/:id', (req, res) => {
 
 // Create a role
 router.post('/roles', ({ body }, res) => {
-    const errors = inputCheck(body, 'job_title', 'salary', 'departments_id');
+    const errors = inputCheck(body, 'job_title', 'salary', 'department_id');
     if (errors) {
       res.status(400).json({ error: errors });
       return;
     }
 
-    const sql = `INSERT INTO roles (job_title, salary, departments_id)
+    const sql = `INSERT INTO roles (job_title, salary, department_id)
         VALUES (?, ?, ?)`;
-        const params = [body.job_title, body.salary, body.departments_id];
+        const params = [body.job_title, body.salary, body.department_id];
 
         db.query(sql, params, (err, result) => {
         if (err) {

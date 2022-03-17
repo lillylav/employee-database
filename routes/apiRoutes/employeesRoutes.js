@@ -15,12 +15,11 @@ const db = mysql.createConnection(
 
 // Get all employees
 router.get('/employees', (req, res) => {
-    const sql = `
-        SELECT employees.id, employees.first_name, employees.last_name, roles.job_title, departments.name AS departments, roles.salary,
-        CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employees
-        LEFT JOIN roles on employees.role_id = roles.id
-        LEFT JOIN departments on roles.department_id = departments.id
-        LEFT JOIN employees manager on manager.id = employees.manager_id`;
+    const sql = `SELECT employees.id, employees.first_name, employees.last_name, roles.job_title, departments.name AS departments, roles.salary,
+                CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employees
+                LEFT JOIN roles on employees.role_id = roles.id
+                LEFT JOIN departments on roles.department_id = departments.id
+                LEFT JOIN employees manager on manager.id = employees.manager_id`;
 
     // check for errors or display JSON
     db.query(sql, (err, rows) => {
@@ -78,6 +77,30 @@ router.post('/employees', ({ body }, res) => {
             message: 'success',
             data: body
         });
+    });
+});
+
+// Update a employee's role
+router.put('/employees/:id', (req, res) => {
+    const sql = `UPDATE employees SET role_id = ? 
+                 WHERE id = ?`;
+    const params = [req.body.role_id, req.params.id];
+    
+    db.query(sql, params, (err, result) => {
+      if (err) {
+        res.status(400).json({ error: err.message });
+        // check if a record was found
+      } else if (!result.affectedRows) {
+        res.json({
+          message: 'Employee not found'
+        });
+      } else {
+        res.json({
+          message: 'success',
+          data: req.body,
+          changes: result.affectedRows
+        });
+      }
     });
 });
 
