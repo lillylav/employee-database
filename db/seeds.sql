@@ -8,7 +8,7 @@ VALUES
     ('Marketing')
 ;
 
-INSERT INTO roles (job_title, salary, departments_id)
+INSERT INTO roles (job_title, salary, department_id)
 VALUES
     ('HR Manager', 110000, 1),
     ('HR Rep', 90000, 1),
