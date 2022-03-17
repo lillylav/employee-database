@@ -22,22 +22,6 @@ router.get('/employees', (req, res) => {
         LEFT JOIN departments on roles.department_id = departments.id
         LEFT JOIN employees manager on manager.id = employees.manager_id`;
 
-    // use foreign key to get job_title
-    // const sql = 
-    //     `SELECT employees.*, roles.job_title
-    //     AS job_title
-    //     FROM employees
-    //     LEFT JOIN roles
-    //     ON employees.role_id = roles.id`;
-
-    // // use foreign key to get manager_name
-    // const sqlManagerName = 
-    //     `SELECT employees.*, employees.manager_id
-    //     AS manager_name
-    //     FROM employees
-    //     LEFT JOIN employees
-    //     ON employees.manager_id = employees.last_name`; 
-
     // check for errors or display JSON
     db.query(sql, (err, rows) => {
       if (err) {
