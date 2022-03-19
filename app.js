@@ -1,15 +1,23 @@
 const inquirer = require('inquirer');
 const consoleTable = require('console.table');
-const mysql2 = require('mysql2');
+const mysql = require('mysql2');
 
-const server = require('./server');
-const Department = require('./lib/Department');
-const Role = require('./lib/Role');
-const Employee = require('./lib/Employee');
 
-const departmentArr = [];
-const roleArr = [];
-const employeeArr = [];
+// Connect to database
+const db = mysql.createConnection(
+    {
+      host: 'localhost',
+      user: 'root',
+      password: '',
+      database: 'company'
+    },
+    console.log('Connected to the company database.')
+);
+
+db.connect(function() {
+    promptUser();
+});
+
 
 // Prompt action
 const promptUser = () => {
@@ -29,54 +37,59 @@ const promptUser = () => {
             }
         }
     ]).then(action => {
-        console.log(action);
-        updateRole();
-    });
+        console.log(action.action);
 
-    //     {
-    //     if (action === 'View All Departments') {
-    //         viewDepartments();
-    //     } else if (action === 'View All Roles') {
-    //         viewRoles();
-    //     } else if (action === 'View All Employees') {
-    //         viewEmployees();
-    //     } else if (action === 'Add a New Department') {
-    //         newDepartment();
-    //     } else if (action === 'Add a New Role') {
-    //         newRole();
-    //     } else if (action === 'Add a New Employee') {
-    //         newEmployee();
-    //     } else if (action === 'Update Employee Role') {
-    //         updateRole();
-    //     } else {
-    //         return;
-    //     }
-    // })
+        if (action.action === 'View All Departments') {
+            viewDepartments();
+        } else if (action.action === 'View All Roles') {
+            viewRoles();
+        } else if (action.action === 'View All Employees') {
+            viewEmployees();
+        } else if (action.action === 'Add a New Department') {
+            newDepartment();
+        } else if (action.action === 'Add a New Role') {
+            newRole();
+        } else if (action.action === 'Add a New Employee') {
+            newEmployee();
+        } else if (action.action === 'Update Employee Role') {
+            updateRole();
+        } else {
+            console.log('Goodbye! To restart, clear terminal with CNTRL+C and run command "node app.js"')
+        }
+    });
 };
 
 // Display departments table ('View All Departments' selected)
 const viewDepartments = () => {
-    console.log("here");
-    server.fetch('http://localhost:3001/api/departments')
-        .then(function(response) {
-            console.table(response);
-    }).then(promptUser);
+    db.query('SELECT * FROM departments', (err, res) => {
+        if (err) {
+            throw err;
+        } 
+        console.table(res);
+        promptUser();
+    });
 };
 
 // Display roles table ('View All Roles' selected)
 const viewRoles = () => {
-    server.fetch('http://localhost:3001/api/roles')
-        .then(function(response) {
-            console.table(response);
-    }).then(promptUser);
+    db.query('SELECT * FROM roles', (err, res) => {
+        if (err) {
+            throw err;
+        } 
+        console.table(res);
+        promptUser();
+    });
 };
 
 // Display employees table ('View All Employees' selected)
 const viewEmployees = () => {
-    server.fetch('http://localhost:3001/api/employees')
-        .then(function(response) {
-            console.table(response);
-    }).then(promptUser);
+    db.query('SELECT * FROM employees', (err, res) => {
+        if (err) {
+            throw err;
+        } 
+        console.table(res);
+        promptUser();
+    });
 };
 
 // Add new department ('Add New Department' selected)
@@ -101,11 +114,9 @@ const newDepartment = () => {
             }
         }
     ]).then((department) => {
-        const newDepartment = new Department(department.name);
-
-        departmentArr.push(newDepartment);
-
-        console.log(departmentArr);
+        db.query('INSERT INTO departments SET ?', {
+            name: department.name
+        });
 
         promptUser();
     });
@@ -118,52 +129,62 @@ const newRole = () => {
             Please enter a new role
     ----------------------------------------`);
 
-    return inquirer.prompt([
-        {
-            type: 'input',
-            name: 'job_title',
-            message: "What's the new role's job title?",
-            validate: job_titleInput => {
-                if (job_titleInput) {
-                    return true;
-                } else {
-                    console.log("No job title has been entered, please try again.")
+    db.query('SELECT * FROM departments', (err, res) => {
+        if (err) {
+            throw err;
+        };
+    
+        return inquirer.prompt([
+            {
+                type: 'input',
+                name: 'job_title',
+                message: "What's the new role's job title?",
+                validate: job_titleInput => {
+                    if (job_titleInput) {
+                        return true;
+                    } else {
+                        console.log("No job title has been entered, please try again.")
+                    }
+                }
+            },
+            {
+                type: 'input',
+                name: 'salary',
+                message: "What's the new role's salary?",
+                validate: salaryInput => {
+                    if (salaryInput) {
+                        return true;
+                    } else {
+                        console.log("No salary has been entered, please try again.")
+                    }
+                }
+            },
+            {
+                type: 'list',
+                name: 'department_id',
+                message: "What's the new role's department id?",
+                choices: res.map(departments => departments.name),
+                validate: salaryInput => {
+                    if (salaryInput) {
+                        return true;
+                    } else {
+                        console.log("No department id has been entered, please try again.")
+                    }
                 }
             }
-        },
-        {
-            type: 'input',
-            name: 'salary',
-            message: "What's the new role's salary?",
-            validate: salaryInput => {
-                if (salaryInput) {
-                    return true;
-                } else {
-                    console.log("No salary has been entered, please try again.")
-                }
-            }
-        },
-        {
-            type: 'input',
-            name: 'department_id',
-            message: "What's the new role's department id?",
-            validate: salaryInput => {
-                if (salaryInput) {
-                    return true;
-                } else {
-                    console.log("No department id has been entered, please try again.")
-                }
-            }
-        }
-    ]).then((role) => {
-        const newRole = new Role(role.job_title, role.salary, role.department_id);
 
-        roleArr.push(newRole);
+        ]).then((role) => {
+            const selectedDepartment = res.find(departments => departments.name === role.department_id);
 
-        console.log(roleArr);
+            db.query('INSERT INTO roles SET ?', {
+                job_title: role.job_title,
+                salary: role.salary,
+                department_id: selectedDepartment.id
+            });
 
-        promptUser();
-    });
+            promptUser();
+        });
+    })
 };
 
 // Add new employee ('Add New Employee' selected)
@@ -173,108 +194,134 @@ const newEmployee = () => {
           Please enter a new employee
     ----------------------------------------`);
 
-    return inquirer.prompt([
-        {
-            type: 'input',
-            name: 'first_name',
-            message: "What's the new employee's first name?",
-            validate: first_nameInput => {
-                if (first_nameInput) {
-                    return true;
-                } else {
-                    console.log("No first name has been entered, please try again.")
+    db.query('SELECT * FROM roles', (err, res) => {
+        if (err) {
+            throw err;
+        };
+    
+        return inquirer.prompt([
+            {
+                type: 'input',
+                name: 'first_name',
+                message: "What's the new employee's first name?",
+                validate: first_nameInput => {
+                    if (first_nameInput) {
+                        return true;
+                    } else {
+                        console.log("No first name has been entered, please try again.")
+                    }
+                }
+            },
+            {
+                type: 'input',
+                name: 'last_name',
+                message: "What's the new employee's last name?",
+                validate: last_nameInput => {
+                    if (last_nameInput) {
+                        return true;
+                    } else {
+                        console.log("No last name has been entered, please try again.")
+                    }
+                }
+            },
+            {
+                type: 'input',
+                name: 'manager_id',
+                message: "What's the new employee's manager's employee id?",
+                validate: manager_idInput => {
+                    if (manager_idInput) {
+                        return true;
+                    } else {
+                        console.log("No manager id has been entered, please try again.")
+                    }
+                }
+            },
+            {
+                type: 'list',
+                name: 'role_name',
+                message: "What's the new employee's role?",
+                choices: res.map(roles => roles.job_title),
+                validate: role_idInput => {
+                    if (role_idInput) {
+                        return true;
+                    } else {
+                        console.log("No role id has been entered, please try again.")
+                    }
                 }
             }
-        },
-        {
-            type: 'input',
-            name: 'last_name',
-            message: "What's the new employee's last name?",
-            validate: last_nameInput => {
-                if (last_nameInput) {
-                    return true;
-                } else {
-                    console.log("No last name has been entered, please try again.")
-                }
-            }
-        },
-        {
-            type: 'input',
-            name: 'manager_id',
-            message: "What's the new employee's manager's employee id?",
-            validate: manager_idInput => {
-                if (manager_idInput) {
-                    return true;
-                } else {
-                    console.log("No manager id has been entered, please try again.")
-                }
-            }
-        },
-        {
-            type: 'input',
-            name: 'role_id',
-            message: "What's the new employee's role id?",
-            validate: role_idInput => {
-                if (role_idInput) {
-                    return true;
-                } else {
-                    console.log("No role id has been entered, please try again.")
-                }
-            }
-        }
-    ]).then((employee) => {
-        const newEmployee = new Employee(employee.first_name, employee.last_name, employee.manager_id, employee.role_id);
+        ]).then((employee) => {
+            const selectedRole = res.find(roles => roles.job_title === employee.role_name);
 
-        employeeArr.push(newEmployee);
+            db.query('INSERT INTO employees SET ?', {
+                first_name: employee.first_name,
+                last_name: employee.last_name,
+                manager_id: employee.manager_id,
+                role_id: selectedRole.id
+            });
 
-        console.log(employeeArr);
-
-        promptUser();
+            promptUser();
+        });
     });
 };
 
 // Update an employee's role ('Update Employee Role' selected)
 const updateRole = () => {
-    return inquirer.prompt([
-        // prompt user for employee id
-        {
-            type: 'input',
-            name: 'employee_id',
-            message: "What's the id of the employee you'd like to update?",
-            validate: employee_idInput => {
-                if (employee_idInput) {
-                    return true;
-                } else {
-                    console.log('No id has been entered, please try again.');
-                    return false;
-                }
-            }
-        },
-        // prompt user for new role id
-        {
-            type: 'input',
-            name: 'role_id',
-            message: "What's the role id you'd like to update this employee to?",
-            validate: role_idInput => {
-                if (role_idInput) {
-                    return true;
-                } else {
-                    console.log('No role id has been entered, please try again.');
-                    return false;
-                }
-            }
-        }
-    ]).then((employeeRoleUpdate) => {
-        console.log(employeeRoleUpdate);
 
-        promptUser();
+    db.query('SELECT * FROM employees', (err, res) => {
+        if (err) {
+            throw err;
+        };
+
+        return inquirer.prompt([
+            // prompt user for employee id
+            {
+                type: 'list',
+                name: 'employee_name',
+                message: "Which employee would you like to update?",
+                choices: res.map(employees => employees.last_name),
+                validate: employee_idInput => {
+                    if (employee_idInput) {
+                        return true;
+                    } else {
+                        console.log('No employee has been selected, please try again.');
+                        return false;
+                    }
+                }
+            }
+        ]).then((employeeName) => {
+            const employeeLastName = employeeName.employee_name;
+
+            db.query('SELECT * FROM roles', (err, res) => {
+                if (err) {
+                    throw err;
+                };
+
+                return inquirer.prompt([
+                    // prompt user for new role id
+                    {
+                        type: 'list',
+                        name: 'role_id',
+                        message: "What's the role id you'd like to update this employee to?",
+                        choices: res.map(roles => roles.job_title),
+                        validate: role_idInput => {
+                            if (role_idInput) {
+                                return true;
+                            } else {
+                                console.log('No role id has been entered, please try again.');
+                                return false;
+                            }
+                        }
+                    }
+                ]).then(selectedEmployee => {
+                    const selectedRole = res.find(roles => roles.job_title === selectedEmployee.role_id);
+
+                    db.query("UPDATE employees SET ? WHERE last_name = " + "'" + employeeLastName + "'", {
+                        role_id: selectedRole.id
+                    });
+
+                    promptUser();
+                });
+            });
+        });
     });
 };
-
-
-promptUser();
-
-// console.log(`
-// ----------------------------------------
-//     Welcome to the employee database
-// ----------------------------------------`);
